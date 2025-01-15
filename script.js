@@ -7,6 +7,24 @@ const ROWS = 16;
 const COLS = 12;
 const BLOCK_SIZE = 40;
 
+let backgroundIndex = 0; // Arka plan için başlangıç indeksi
+const backgroundImages = Array.from({ length: 28 }, (_, i) => `assets/images/dusman${i + 1}.png`);
+
+
+
+function changeBackground() {
+    const img = new Image();
+    img.src = backgroundImages[backgroundIndex];
+    img.onload = () => {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+    img.onerror = () => {
+        console.warn(`Failed to load background image: ${backgroundImages[backgroundIndex]}`);
+    };
+
+    backgroundIndex = (backgroundIndex + 1) % backgroundImages.length; // Sıradaki resme geç
+    setTimeout(changeBackground, 1000); // 1 saniyede bir değiştir
+}
 // Arka plan resmi
 const background = new Image();
 background.src = 'assets/images/background.png';
@@ -130,14 +148,17 @@ function clearRows() {
 }
 
 function drawBackground() {
-    if (background.complete && background.naturalWidth > 0) {
-        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    const img = new Image();
+    img.src = backgroundImages[backgroundIndex];
+    if (img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
 }
 
+// Oyun Döngüsü İçine Ekleniyor
 function drawBoard() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBackground();
+    drawBackground(); // Arka planı çiz
     board.forEach((row, y) =>
         row.forEach((value, x) => {
             if (value instanceof HTMLImageElement) {
