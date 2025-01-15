@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
@@ -39,6 +38,25 @@ let score = 0;
 // Arka plan müziği
 const bgMusic = new Audio('assets/sounds/background.mp3');
 bgMusic.loop = true;
+
+function preloadImages(images, callback) {
+    let loadedCount = 0;
+    images.forEach((img) => {
+        img.onload = () => {
+            loadedCount++;
+            if (loadedCount === images.length) {
+                callback();
+            }
+        };
+        img.onerror = () => {
+            console.warn(`Failed to load image: ${img.src}`);
+            loadedCount++;
+            if (loadedCount === images.length) {
+                callback();
+            }
+        };
+    });
+}
 
 function newPiece() {
     if (!nextPiece) {
@@ -180,7 +198,6 @@ function drawPiece() {
     );
 }
 
-
 function drawScore() {
     ctx.fillStyle = 'white';
     ctx.font = '20px Arial';
@@ -213,8 +230,10 @@ startButton.addEventListener('click', () => {
     gameOver = false;
     board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
     score = 0;
-    newPiece();
-    bgMusic.play();
-    startButton.style.display = 'none';
-    gameLoop();
+    preloadImages(pieceImages.concat([background]), () => {
+        newPiece();
+        bgMusic.play();
+        startButton.style.display = 'none';
+        gameLoop();
+    });
 });
