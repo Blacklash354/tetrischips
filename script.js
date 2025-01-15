@@ -70,11 +70,14 @@ function moveSideways(direction) {
 }
 
 function moveDown() {
+    // Alt sınır kontrolü
     if (!isValidMove(0, 1)) {
         mergePiece();
         clearRows();
         newPiece();
-    } else currentY++;
+    } else {
+        currentY++;
+    }
 }
 
 function rotatePiece() {
@@ -149,7 +152,7 @@ function gameLoop() {
     if (gameOver) {
         ctx.fillStyle = 'white';
         ctx.font = '30px Arial';
-        ctx.fillText('Oyun Bitti', 120, 400);
+        ctx.fillText('Oyun Bitti', 120, 300);
         return;
     }
     moveDown();
