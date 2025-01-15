@@ -1,11 +1,11 @@
-/ Tetris Benzeri Oyun (Güncellenmiş: Broken Image, Gelen Blok Gösterimi, Alt Sınır)
+// Tetris Benzeri Oyun (Düzeltilmiş: Alt Sınır, Gelen Blok Gösterimi)
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
 canvas.width = 480;
 canvas.height = 640;
-const ROWS = 20;
-const COLS = 10;
+const ROWS = 16; // Alt sınırı 640'a uygun şekilde ayarlandı
+const COLS = 12; // Genişlik için daha fazla sütun
 const BLOCK_SIZE = 40;
 
 const background = new Image();
@@ -70,14 +70,11 @@ function moveSideways(direction) {
 }
 
 function moveDown() {
-    // Alt sınır kontrolü
     if (!isValidMove(0, 1)) {
         mergePiece();
         clearRows();
         newPiece();
-    } else {
-        currentY++;
-    }
+    } else currentY++;
 }
 
 function rotatePiece() {
@@ -152,7 +149,7 @@ function gameLoop() {
     if (gameOver) {
         ctx.fillStyle = 'white';
         ctx.font = '30px Arial';
-        ctx.fillText('Oyun Bitti', 120, 300);
+        ctx.fillText('Oyun Bitti', 120, 400);
         return;
     }
     moveDown();
