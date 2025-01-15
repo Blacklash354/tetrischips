@@ -5,7 +5,7 @@ const startButton = document.getElementById('startButton');
 canvas.width = 480;
 canvas.height = 640;
 const ROWS = 20;
-const COLS = 10;
+const COLS = 12; // Wider to fit the width
 const BLOCK_SIZE = 40;
 
 const background = new Image();
@@ -124,7 +124,7 @@ function gameLoop() {
     if (gameOver) {
         ctx.fillStyle = 'white';
         ctx.font = '30px Arial';
-        ctx.fillText('Oyun Bitti', 120, 400);
+        ctx.fillText('Oyun Bitti', 120, 300);
         return;
     }
     moveDown();
