@@ -9,7 +9,7 @@ const COLS = 10;
 const BLOCK_SIZE = 40;
 
 const background = new Image();
-background.src = 'assets/images/background.jpg'; // Arka plan resmi eklendi
+background.src = 'assets/images/background.png'; // Arka plan resmi eklendi
 
 const pieceImages = [
     'assets/images/dusman1.png', 'assets/images/dusman2.png', 'assets/images/dusman3.png',
