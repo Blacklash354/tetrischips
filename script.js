@@ -9,7 +9,7 @@ const BLOCK_SIZE = 40;
 
 // Arka plan resmi
 const background = new Image();
-background.src = 'assets/images/background.jpg';
+background.src = 'assets/images/background.png';
 background.onload = () => console.log('Background loaded successfully.');
 background.onerror = () => console.error('Failed to load background image.');
 
