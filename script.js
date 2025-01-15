@@ -1,4 +1,4 @@
-// Tetris Benzeri Oyun (Düzeltildi: Bloklar Doğru Düşüyor, Arka Plan, Doğru Düşme Mekaniği)
+// Tetris Benzeri Oyun (Düzeltildi: Bloklar Doğru Düşüyor, Arka Plan Yükleniyor, Oyun Alanı Sınırlandırıldı)
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
@@ -64,18 +64,7 @@ function moveDown() {
         mergePiece();
         clearRows();
         newPiece();
-    } else {
-        currentY++;
-    }
-}
-
-function dropPiece() {
-    while (isValidMove(0, 1)) {
-        currentY++;
-    }
-    mergePiece();
-    clearRows();
-    newPiece();
+    } else currentY++;
 }
 
 function rotatePiece() {
@@ -150,7 +139,6 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight') moveSideways(1);
     if (e.key === 'ArrowUp') rotatePiece();
     if (e.key === 'ArrowDown') moveDown();
-    if (e.key === ' ') dropPiece();
 });
 
 startButton.addEventListener('click', () => {
