@@ -1,4 +1,4 @@
-// Tetris Benzeri Oyun (Alt Sınır ve Gelen Blok Gösterimi Güncellemesi)
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
