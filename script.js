@@ -129,22 +129,6 @@ function drawBoard() {
     );
 }
 
-function drawPiece() {
-    currentPiece.shape.forEach((row, dy) =>
-        row.forEach((value, dx) => {
-            if (value) {
-                ctx.drawImage(
-                    currentPiece.image,
-                    (currentX + dx) * BLOCK_SIZE,
-                    (currentY + dy) * BLOCK_SIZE,
-                    BLOCK_SIZE,
-                    BLOCK_SIZE
-                );
-            }
-        })
-    );
-}
-
 function drawNextPiece() {
     ctx.fillStyle = 'white';
     ctx.font = '16px Arial';
@@ -152,17 +136,50 @@ function drawNextPiece() {
     nextPiece.shape.forEach((row, dy) =>
         row.forEach((value, dx) => {
             if (value) {
-                ctx.drawImage(
-                    nextPiece.image,
-                    350 + dx * BLOCK_SIZE / 2,
-                    50 + dy * BLOCK_SIZE / 2,
-                    BLOCK_SIZE / 2,
-                    BLOCK_SIZE / 2
-                );
+                try {
+                    if (nextPiece.image.complete && nextPiece.image.naturalWidth > 0) {
+                        ctx.drawImage(
+                            nextPiece.image,
+                            350 + dx * BLOCK_SIZE / 2,
+                            50 + dy * BLOCK_SIZE / 2,
+                            BLOCK_SIZE / 2,
+                            BLOCK_SIZE / 2
+                        );
+                    } else {
+                        console.warn('Next piece image not loaded or broken.');
+                    }
+                } catch (error) {
+                    console.error('Failed to draw next piece image:', error);
+                }
             }
         })
     );
 }
+
+function drawPiece() {
+    currentPiece.shape.forEach((row, dy) =>
+        row.forEach((value, dx) => {
+            if (value) {
+                try {
+                    if (currentPiece.image.complete && currentPiece.image.naturalWidth > 0) {
+                        ctx.drawImage(
+                            currentPiece.image,
+                            (currentX + dx) * BLOCK_SIZE,
+                            (currentY + dy) * BLOCK_SIZE,
+                            BLOCK_SIZE,
+                            BLOCK_SIZE
+                        );
+                    } else {
+                        console.warn('Current piece image not loaded or broken.');
+                    }
+                } catch (error) {
+                    console.error('Failed to draw current piece image:', error);
+                }
+            }
+        })
+    );
+}
+
 
 function drawScore() {
     ctx.fillStyle = 'white';
