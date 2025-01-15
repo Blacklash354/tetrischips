@@ -16,13 +16,17 @@ function changeBackground() {
     const img = new Image();
     img.src = backgroundImages[backgroundIndex];
     img.onload = () => {
+        // Sadece arka plan katmanını güncelle
+        ctx.globalCompositeOperation = 'destination-over';
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'source-over'; // Varsayılan moda geri dön
+        backgroundIndex = (backgroundIndex + 1) % backgroundImages.length; // Sıradaki resme geç
     };
     img.onerror = () => {
         console.warn(`Failed to load background image: ${backgroundImages[backgroundIndex]}`);
+        backgroundIndex = (backgroundIndex + 1) % backgroundImages.length; // Hatalıysa diğerine geç
     };
 
-    backgroundIndex = (backgroundIndex + 1) % backgroundImages.length; // Sıradaki resme geç
     setTimeout(changeBackground, 1000); // 1 saniyede bir değiştir
 }
 // Arka plan resmi
