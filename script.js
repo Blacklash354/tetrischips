@@ -141,12 +141,26 @@ function mergePiece() {
     );
 }
 
+const soundEffects = [
+    new Audio('assets/sounds/carpma1.mp3'),
+    new Audio('assets/sounds/carpma2.mp3'),
+    new Audio('assets/sounds/carpma3.mp3')
+];
+
+// Rastgele ses çal
+function playRandomSound() {
+    const randomIndex = Math.floor(Math.random() * soundEffects.length);
+    soundEffects[randomIndex].play();
+}
+
+// Skor için satır temizleme fonksiyonu güncelleniyor
 function clearRows() {
     for (let y = ROWS - 1; y >= 0; y--) {
         if (board[y].every(cell => cell)) {
             board.splice(y, 1);
             board.unshift(Array(COLS).fill(0));
-            score += 100;
+            score += 100; // Skor artır
+            playRandomSound(); // Rastgele bir ses çal
         }
     }
 }
