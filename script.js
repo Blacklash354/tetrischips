@@ -2,8 +2,8 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
-canvas.width = 400;
-canvas.height = 800;
+canvas.width = 480;
+canvas.height = 640;
 const ROWS = 20;
 const COLS = 10;
 const BLOCK_SIZE = 40;
