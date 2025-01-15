@@ -1,4 +1,4 @@
-// Tetris Benzeri Oyun (Düzeltildi: Bloklar Doğru Düşüyor, Arka Plan Yükleniyor, Oyun Alanı Sınırlandırıldı)
+// Tetris Benzeri Oyun (Düzeltildi: Alt ve Sağ Sınırlar, Blokların Doğru Hareketi)
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
@@ -39,7 +39,7 @@ function newPiece() {
     let shapeIndex = Math.floor(Math.random() * SHAPES.length);
     let imageIndex = Math.floor(Math.random() * pieceImages.length);
     currentPiece = { shape: SHAPES[shapeIndex], image: pieceImages[imageIndex] };
-    currentX = Math.floor(Math.random() * (COLS - currentPiece.shape[0].length));
+    currentX = Math.floor((COLS - currentPiece.shape[0].length) / 2);
     currentY = 0;
     if (!isValidMove(0, 0)) gameOver = true;
 }
