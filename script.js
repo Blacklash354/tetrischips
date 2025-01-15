@@ -1,4 +1,4 @@
-// Tetris Benzeri Oyun (Resimli, Arka Plan ve Başlatma Düzeltmesi)
+// Tetris Benzeri Oyun (Düzeltildi: Bloklar Doğru Düşüyor, Arka Plan)
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
@@ -39,7 +39,7 @@ function newPiece() {
     let shapeIndex = Math.floor(Math.random() * SHAPES.length);
     let imageIndex = Math.floor(Math.random() * pieceImages.length);
     currentPiece = { shape: SHAPES[shapeIndex], image: pieceImages[imageIndex] };
-    currentX = 4;
+    currentX = Math.floor(Math.random() * (COLS - currentPiece.shape[0].length));
     currentY = 0;
     if (!isValidMove(0, 0)) gameOver = true;
 }
@@ -70,6 +70,22 @@ function moveDown() {
 function rotatePiece() {
     let rotated = currentPiece.shape[0].map((_, i) => currentPiece.shape.map(row => row[i]).reverse());
     if (isValidMove(0, 0, rotated)) currentPiece.shape = rotated;
+}
+
+function mergePiece() {
+    currentPiece.shape.forEach((row, dy) => row.forEach((value, dx) => {
+        if (value) board[currentY + dy][currentX + dx] = currentPiece.image;
+    }));
+}
+
+function clearRows() {
+    for (let y = ROWS - 1; y >= 0; y--) {
+        if (board[y].every(cell => cell)) {
+            board.splice(y, 1);
+            board.unshift(Array(COLS).fill(0));
+            score += 100;
+        }
+    }
 }
 
 function drawBackground() {
