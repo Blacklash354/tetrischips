@@ -256,5 +256,6 @@ startButton.addEventListener('click', () => {
     newPiece(); // İlk parçayı oluştur
     bgMusic.play(); // Arka plan müziğini başlat
     startButton.style.display = 'none'; // Başla düğmesini gizle
+    changeBackground(); // Arka plan değişimini başlat
     gameLoop(); // Oyun döngüsünü başlat
 });
