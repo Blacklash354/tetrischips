@@ -1,4 +1,4 @@
-// Tetris Benzeri Oyun (Güncellenmiş: Broken Image, Gelen Blok Gösterimi, Alt Sınır)
+/ Tetris Benzeri Oyun (Güncellenmiş: Broken Image, Gelen Blok Gösterimi, Alt Sınır)
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
