@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url('assets/images/background.jpg');
+    background-size: cover;
+    font-family: Arial, sans-serif;
+}
+
+#game-container {
+    width: 480px;
+    height: 640px;
+    position: relative;
+    border: 2px solid #fff;
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+}
+
+#startButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 30px;
+    font-size: 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+#startButton:hover {
+    background-color: #218838;
+}
