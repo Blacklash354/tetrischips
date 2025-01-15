@@ -23,7 +23,7 @@ function changeBackground() {
     };
 
     backgroundIndex = (backgroundIndex + 1) % backgroundImages.length; // Sıradaki resme geç
-    setTimeout(changeBackground, 1000); // 1 saniyede bir değiştir
+    setTimeout(changeBackground, 20); // 1 saniyede bir değiştir
 }
 // Arka plan resmi
 const background = new Image();
