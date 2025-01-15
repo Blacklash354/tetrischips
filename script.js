@@ -230,7 +230,10 @@ startButton.addEventListener('click', () => {
     gameOver = false;
     board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
     score = 0;
+
+    // Resimleri önceden yükle ve oyunu başlat
     preloadImages(pieceImages.concat([background]), () => {
+        console.log("All images loaded. Starting the game...");
         newPiece();
         bgMusic.play();
         startButton.style.display = 'none';
