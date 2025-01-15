@@ -1,11 +1,11 @@
-// Tetris Benzeri Oyun (Düzeltildi: Alt ve Sağ Sınırlar, Blokların Doğru Hareketi)
+// Tetris Benzeri Oyun (Güncellenmiş: Broken Image, Gelen Blok Gösterimi, Alt Sınır)
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
 canvas.width = 480;
 canvas.height = 640;
-const ROWS = 16; // Satır sayısı (640 / 40)
-const COLS = 12; // Sütun sayısı (480 / 40)
+const ROWS = 20;
+const COLS = 10;
 const BLOCK_SIZE = 40;
 
 const background = new Image();
@@ -28,6 +28,7 @@ const SHAPES = [
 
 let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 let currentPiece;
+let nextPiece;
 let currentX = 4, currentY = 0;
 let gameOver = false;
 let score = 0;
@@ -36,12 +37,21 @@ const bgMusic = new Audio('assets/sounds/background.mp3');
 bgMusic.loop = true;
 
 function newPiece() {
-    let shapeIndex = Math.floor(Math.random() * SHAPES.length);
-    let imageIndex = Math.floor(Math.random() * pieceImages.length);
-    currentPiece = { shape: SHAPES[shapeIndex], image: pieceImages[imageIndex] };
+    if (!nextPiece) {
+        nextPiece = generatePiece();
+    }
+    currentPiece = nextPiece;
+    nextPiece = generatePiece();
+
     currentX = Math.floor((COLS - currentPiece.shape[0].length) / 2);
     currentY = 0;
     if (!isValidMove(0, 0)) gameOver = true;
+}
+
+function generatePiece() {
+    let shapeIndex = Math.floor(Math.random() * SHAPES.length);
+    let imageIndex = Math.floor(Math.random() * pieceImages.length);
+    return { shape: SHAPES[shapeIndex], image: pieceImages[imageIndex] };
 }
 
 function isValidMove(offsetX, offsetY, rotatedPiece) {
@@ -50,7 +60,7 @@ function isValidMove(offsetX, offsetY, rotatedPiece) {
         row.every((value, dx) => {
             let newX = currentX + dx + offsetX;
             let newY = currentY + dy + offsetY;
-            return !value || (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && !board[newY][newX]);
+            return !value || (newX >= 0 && newX < COLS && newY < ROWS && !board[newY][newX]);
         })
     );
 }
@@ -109,7 +119,22 @@ function drawBoard() {
 function drawPiece() {
     currentPiece.shape.forEach((row, dy) => row.forEach((value, dx) => {
         if (value) {
-            ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            try {
+                ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            } catch (error) {
+                console.error('Failed to draw piece image:', error);
+            }
+        }
+    }));
+}
+
+function drawNextPiece() {
+    ctx.fillStyle = 'white';
+    ctx.font = '16px Arial';
+    ctx.fillText('Gelen Patlak Blok:', 350, 30);
+    nextPiece.shape.forEach((row, dy) => row.forEach((value, dx) => {
+        if (value) {
+            ctx.drawImage(nextPiece.image, 350 + dx * BLOCK_SIZE / 2, 50 + dy * BLOCK_SIZE / 2, BLOCK_SIZE / 2, BLOCK_SIZE / 2);
         }
     }));
 }
@@ -130,6 +155,7 @@ function gameLoop() {
     moveDown();
     drawBoard();
     drawPiece();
+    drawNextPiece();
     drawScore();
     setTimeout(gameLoop, 500 - Math.min(400, score));
 }
