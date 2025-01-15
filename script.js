@@ -2,24 +2,18 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
-canvas.width = 400; // 10 sütun * 40px genişlik (Bloklar büyütüldü)
-canvas.height = 800; // 20 satır * 40px yükseklik
+canvas.width = 400;
+canvas.height = 800;
 const ROWS = 20;
 const COLS = 10;
 const BLOCK_SIZE = 40;
 
 const background = new Image();
-background.src = 'assets/images/background.png'; // Arka plan resmi eklendi
+background.src = 'assets/images/background.jpg';
 
-const pieceImages = [
-    'assets/images/dusman1.png', 'assets/images/dusman2.png', 'assets/images/dusman3.png',
-    'assets/images/dusman4.png', 'assets/images/dusman5.png', 'assets/images/dusman6.png',
-    'assets/images/dusman7.png', 'assets/images/dusman8.png', 'assets/images/dusman9.png',
-    'assets/images/dusman10.png', 'assets/images/dusman11.png', 'assets/images/dusman12.png',
-    'assets/images/dusman13.png', 'assets/images/dusman14.png', 'assets/images/dusman15.png'
-].map(src => {
+const pieceImages = [...Array(15)].map((_, i) => {
     const img = new Image();
-    img.src = src;
+    img.src = `assets/images/dusman${i + 1}.png`;
     return img;
 });
 
@@ -56,6 +50,23 @@ function isValidMove(offsetX, offsetY, rotatedPiece) {
             return !value || (newX >= 0 && newX < COLS && newY < ROWS && !board[newY][newX]);
         })
     );
+}
+
+function moveSideways(direction) {
+    if (isValidMove(direction, 0)) currentX += direction;
+}
+
+function moveDown() {
+    if (!isValidMove(0, 1)) {
+        mergePiece();
+        clearRows();
+        newPiece();
+    } else currentY++;
+}
+
+function rotatePiece() {
+    let rotated = currentPiece.shape[0].map((_, i) => currentPiece.shape.map(row => row[i]).reverse());
+    if (isValidMove(0, 0, rotated)) currentPiece.shape = rotated;
 }
 
 function drawBackground() {
@@ -113,6 +124,6 @@ startButton.addEventListener('click', () => {
     score = 0;
     newPiece();
     bgMusic.play();
-    startButton.style.display = 'none'; // Başlat düğmesini gizle
+    startButton.style.display = 'none';
     gameLoop();
 });
