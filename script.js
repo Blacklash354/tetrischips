@@ -4,8 +4,8 @@ const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
 canvas.width = 480;
 canvas.height = 640;
-const ROWS = 20;
-const COLS = 12; // Wider to fit the width
+const ROWS = 16; // Satır sayısı (640 / 40)
+const COLS = 12; // Sütun sayısı (480 / 40)
 const BLOCK_SIZE = 40;
 
 const background = new Image();
@@ -50,7 +50,7 @@ function isValidMove(offsetX, offsetY, rotatedPiece) {
         row.every((value, dx) => {
             let newX = currentX + dx + offsetX;
             let newY = currentY + dy + offsetY;
-            return !value || (newX >= 0 && newX < COLS && newY < ROWS && !board[newY][newX]);
+            return !value || (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && !board[newY][newX]);
         })
     );
 }
@@ -124,7 +124,7 @@ function gameLoop() {
     if (gameOver) {
         ctx.fillStyle = 'white';
         ctx.font = '30px Arial';
-        ctx.fillText('Oyun Bitti', 120, 300);
+        ctx.fillText('Oyun Bitti', 120, 400);
         return;
     }
     moveDown();
