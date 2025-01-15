@@ -1,38 +1,42 @@
-// Tetris Benzeri Oyun (Düzeltilmiş: Alt Sınır, Gelen Blok Gösterimi)
+// Tetris Benzeri Oyun (Alt Sınır ve Gelen Blok Gösterimi Güncellemesi)
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
 canvas.width = 480;
 canvas.height = 640;
-const ROWS = 16; // Alt sınırı 640'a uygun şekilde ayarlandı
-const COLS = 12; // Genişlik için daha fazla sütun
+const ROWS = 16;
+const COLS = 12;
 const BLOCK_SIZE = 40;
 
+// Arka plan resmi
 const background = new Image();
 background.src = 'assets/images/background.jpg';
-background.onload = () => console.log('Background image loaded successfully.');
+background.onload = () => console.log('Background loaded successfully.');
 background.onerror = () => console.error('Failed to load background image.');
 
-const pieceImages = [...Array(15)].map((_, i) => {
+// Parça resimleri
+const pieceImages = Array.from({ length: 15 }, (_, i) => {
     const img = new Image();
     img.src = `assets/images/dusman${i + 1}.png`;
     img.onerror = () => console.error(`Failed to load image: dusman${i + 1}.png`);
     return img;
 });
 
+// Tetris şekilleri
 const SHAPES = [
     [[1, 1, 1, 1]], [[1, 1, 1], [0, 1, 0]], [[1, 1, 1], [1, 0, 0]],
     [[1, 1, 1], [0, 0, 1]], [[1, 1], [1, 1]], [[0, 1, 1], [1, 1, 0]],
     [[1, 1, 0], [0, 1, 1]]
 ];
 
+// Başlangıç durumları
 let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-let currentPiece;
-let nextPiece;
+let currentPiece, nextPiece;
 let currentX = 4, currentY = 0;
 let gameOver = false;
 let score = 0;
 
+// Arka plan müziği
 const bgMusic = new Audio('assets/sounds/background.mp3');
 bgMusic.loop = true;
 
@@ -42,25 +46,28 @@ function newPiece() {
     }
     currentPiece = nextPiece;
     nextPiece = generatePiece();
-
     currentX = Math.floor((COLS - currentPiece.shape[0].length) / 2);
     currentY = 0;
     if (!isValidMove(0, 0)) gameOver = true;
 }
 
 function generatePiece() {
-    let shapeIndex = Math.floor(Math.random() * SHAPES.length);
-    let imageIndex = Math.floor(Math.random() * pieceImages.length);
+    const shapeIndex = Math.floor(Math.random() * SHAPES.length);
+    const imageIndex = Math.floor(Math.random() * pieceImages.length);
     return { shape: SHAPES[shapeIndex], image: pieceImages[imageIndex] };
 }
 
-function isValidMove(offsetX, offsetY, rotatedPiece) {
-    let shape = rotatedPiece || currentPiece.shape;
-    return shape.every((row, dy) =>
+function isValidMove(offsetX, offsetY, rotatedPiece = currentPiece.shape) {
+    return rotatedPiece.every((row, dy) =>
         row.every((value, dx) => {
-            let newX = currentX + dx + offsetX;
-            let newY = currentY + dy + offsetY;
-            return !value || (newX >= 0 && newX < COLS && newY < ROWS && !board[newY][newX]);
+            if (!value) return true; // Parça yoksa devam et
+            const newX = currentX + dx + offsetX;
+            const newY = currentY + dy + offsetY;
+            return (
+                newX >= 0 && newX < COLS && // Yan sınır kontrolü
+                newY >= 0 && newY < ROWS && // Alt sınır kontrolü
+                !board[newY]?.[newX] // Mevcut tahtadaki doluluk kontrolü
+            );
         })
     );
 }
@@ -74,18 +81,24 @@ function moveDown() {
         mergePiece();
         clearRows();
         newPiece();
-    } else currentY++;
+    } else {
+        currentY++;
+    }
 }
 
 function rotatePiece() {
-    let rotated = currentPiece.shape[0].map((_, i) => currentPiece.shape.map(row => row[i]).reverse());
+    const rotated = currentPiece.shape[0].map((_, i) =>
+        currentPiece.shape.map(row => row[i]).reverse()
+    );
     if (isValidMove(0, 0, rotated)) currentPiece.shape = rotated;
 }
 
 function mergePiece() {
-    currentPiece.shape.forEach((row, dy) => row.forEach((value, dx) => {
-        if (value) board[currentY + dy][currentX + dx] = currentPiece.image;
-    }));
+    currentPiece.shape.forEach((row, dy) =>
+        row.forEach((value, dx) => {
+            if (value) board[currentY + dy][currentX + dx] = currentPiece.image;
+        })
+    );
 }
 
 function clearRows() {
@@ -101,42 +114,54 @@ function clearRows() {
 function drawBackground() {
     if (background.complete && background.naturalWidth > 0) {
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    } else {
-        console.warn('Background image not loaded yet.');
     }
 }
 
 function drawBoard() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBackground();
-    board.forEach((row, y) => row.forEach((value, x) => {
-        if (value instanceof HTMLImageElement) {
-            ctx.drawImage(value, x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-        }
-    }));
+    board.forEach((row, y) =>
+        row.forEach((value, x) => {
+            if (value instanceof HTMLImageElement) {
+                ctx.drawImage(value, x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            }
+        })
+    );
 }
 
 function drawPiece() {
-    currentPiece.shape.forEach((row, dy) => row.forEach((value, dx) => {
-        if (value) {
-            try {
-                ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-            } catch (error) {
-                console.error('Failed to draw piece image:', error);
+    currentPiece.shape.forEach((row, dy) =>
+        row.forEach((value, dx) => {
+            if (value) {
+                ctx.drawImage(
+                    currentPiece.image,
+                    (currentX + dx) * BLOCK_SIZE,
+                    (currentY + dy) * BLOCK_SIZE,
+                    BLOCK_SIZE,
+                    BLOCK_SIZE
+                );
             }
-        }
-    }));
+        })
+    );
 }
 
 function drawNextPiece() {
     ctx.fillStyle = 'white';
     ctx.font = '16px Arial';
     ctx.fillText('Gelen Patlak Blok:', 350, 30);
-    nextPiece.shape.forEach((row, dy) => row.forEach((value, dx) => {
-        if (value) {
-            ctx.drawImage(nextPiece.image, 350 + dx * BLOCK_SIZE / 2, 50 + dy * BLOCK_SIZE / 2, BLOCK_SIZE / 2, BLOCK_SIZE / 2);
-        }
-    }));
+    nextPiece.shape.forEach((row, dy) =>
+        row.forEach((value, dx) => {
+            if (value) {
+                ctx.drawImage(
+                    nextPiece.image,
+                    350 + dx * BLOCK_SIZE / 2,
+                    50 + dy * BLOCK_SIZE / 2,
+                    BLOCK_SIZE / 2,
+                    BLOCK_SIZE / 2
+                );
+            }
+        })
+    );
 }
 
 function drawScore() {
