@@ -10,10 +10,13 @@ const BLOCK_SIZE = 40;
 
 const background = new Image();
 background.src = 'assets/images/background.jpg';
+background.onload = () => console.log('Background image loaded successfully.');
+background.onerror = () => console.error('Failed to load background image.');
 
 const pieceImages = [...Array(15)].map((_, i) => {
     const img = new Image();
     img.src = `assets/images/dusman${i + 1}.png`;
+    img.onerror = () => console.error(`Failed to load image: dusman${i + 1}.png`);
     return img;
 });
 
@@ -70,7 +73,11 @@ function rotatePiece() {
 }
 
 function drawBackground() {
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    if (background.complete && background.naturalWidth > 0) {
+        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    } else {
+        console.warn('Background image not loaded yet.');
+    }
 }
 
 function drawBoard() {
