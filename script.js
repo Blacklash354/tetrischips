@@ -27,7 +27,7 @@ function changeBackground() {
         backgroundIndex = (backgroundIndex + 1) % backgroundImages.length; // Hatalıysa diğerine geç
     };
 
-    setTimeout(changeBackground, 20000); // 1 saniyede bir değiştir
+    setTimeout(changeBackground, 10000); // 1 saniyede bir değiştir
 }
 // Arka plan resmi
 const background = new Image();
