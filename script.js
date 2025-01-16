@@ -1,16 +1,8 @@
-// Ana canvas ve board için canvas oluşturma
-const mainCanvas = document.getElementById('gameCanvas');
-const mainCtx = mainCanvas.getContext('2d');
-mainCanvas.width = 480;
-mainCanvas.height = 640;
-
-const boardCanvas = document.createElement('canvas');
-const boardCtx = boardCanvas.getContext('2d');
-boardCanvas.width = 480;
-boardCanvas.height = 640;
-
-document.body.appendChild(boardCanvas); // Board katmanını ekliyoruz
-
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const startButton = document.getElementById('startButton');
+canvas.width = 480;
+canvas.height = 640;
 const ROWS = 16;
 const COLS = 12;
 const BLOCK_SIZE = 40;
@@ -22,9 +14,9 @@ function changeBackground() {
     const img = new Image();
     img.src = backgroundImages[backgroundIndex];
     img.onload = () => {
-        mainCtx.globalCompositeOperation = 'destination-over';
-        mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
-        mainCtx.globalCompositeOperation = 'source-over';
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'source-over';
         backgroundIndex = (backgroundIndex + 1) % backgroundImages.length;
     };
     setTimeout(changeBackground, 10000);
@@ -151,34 +143,26 @@ function clearRows() {
             board.unshift(Array(COLS).fill(0));
             score += 100;
             playRandomSound();
-            drawStaticText(); // Skoru güncelle
+            drawStaticText(); // Statik textleri güncelle
         }
     }
 }
 
 function drawStaticText() {
-    mainCtx.clearRect(0, 0, mainCanvas.width, 50); // Sadece üst kısmı temizle
-    mainCtx.fillStyle = 'white';
-    mainCtx.font = '20px Arial';
-    mainCtx.fillText(`Skor: ${score}`, 10, 30);
-    mainCtx.font = '16px Arial';
-    mainCtx.fillText('Gelen Patlak Blok:', 350, 30);
-}
-
-function drawBackground() {
-    const img = new Image();
-    img.src = backgroundImages[backgroundIndex];
-    if (img.complete && img.naturalWidth > 0) {
-        mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
-    }
+    ctx.clearRect(0, 0, canvas.width, 50); // Sadece üst kısmı temizle
+    ctx.fillStyle = 'white';
+    ctx.font = '20px Arial';
+    ctx.fillText(`Skor: ${score}`, 10, 30);
+    ctx.font = '16px Arial';
+    ctx.fillText('Gelen Patlak Blok:', 350, 30);
 }
 
 function drawBoard() {
-    boardCtx.clearRect(0, 0, boardCanvas.width, boardCanvas.height);
+    ctx.clearRect(0, 50, canvas.width, canvas.height); // Statik metinler hariç temizle
     board.forEach((row, y) =>
         row.forEach((value, x) => {
             if (value instanceof HTMLImageElement) {
-                boardCtx.drawImage(value, x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                ctx.drawImage(value, x * BLOCK_SIZE, y * BLOCK_SIZE + 50, BLOCK_SIZE, BLOCK_SIZE);
             }
         })
     );
@@ -188,26 +172,16 @@ function drawPiece() {
     currentPiece.shape.forEach((row, dy) =>
         row.forEach((value, dx) => {
             if (value) {
-                boardCtx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-            }
-        })
-    );
-}
-
-function drawNextPiece() {
-    nextPiece.shape.forEach((row, dy) =>
-        row.forEach((value, dx) => {
-            if (value) {
-                mainCtx.drawImage(nextPiece.image, 350 + dx * BLOCK_SIZE / 2, 50 + dy * BLOCK_SIZE / 2, BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+                ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE + 50, BLOCK_SIZE, BLOCK_SIZE);
             }
         })
     );
 }
 
 function drawGameOver() {
-    mainCtx.fillStyle = 'red';
-    mainCtx.font = '40px Arial';
-    mainCtx.fillText('Oyun Bitti', 120, mainCanvas.height / 2);
+    ctx.fillStyle = 'red';
+    ctx.font = '40px Arial';
+    ctx.fillText('Oyun Bitti', 120, canvas.height / 2);
 }
 
 function gameLoop() {
@@ -236,7 +210,7 @@ startButton.addEventListener('click', () => {
     newPiece();
     playBackgroundMusic();
     startButton.style.display = 'none';
-    drawStaticText();
+    drawStaticText(); // Başlangıçta statik metinleri çiz
     changeBackground();
     gameLoop();
 });
