@@ -8,7 +8,7 @@ const COLS = 12;
 const BLOCK_SIZE = 40;
 
 let backgroundIndex = 0;
-const backgroundImages = Array.from({ length: 28 }, (_, i) => assets/images/dusman${i + 1}.png);
+const backgroundImages = Array.from({ length: 28 }, (_, i) => `assets/images/dusman${i + 1}.png`);
 
 function changeBackground() {
     const img = new Image();
@@ -24,8 +24,8 @@ function changeBackground() {
 
 const pieceImages = Array.from({ length: 15 }, (_, i) => {
     const img = new Image();
-    img.src = assets/images/dusman${i + 1}.png;
-    img.onerror = () => console.error(Failed to load image: dusman${i + 1}.png);
+    img.src = `assets/images/dusman${i + 1}.png`;
+    img.onerror = () => console.error(`Failed to load image: dusman${i + 1}.png`);
     return img;
 });
 
@@ -54,9 +54,9 @@ function playBackgroundMusic() {
     const currentTrack = bgMusicTracks[currentMusicIndex];
     currentTrack.loop = false;
     currentTrack.play().then(() => {
-        console.log(Playing background music: ${currentTrack.src});
+        console.log(`Playing background music: ${currentTrack.src}`);
     }).catch(err => {
-        console.warn(Failed to play music: ${currentTrack.src}, Error: ${err});
+        console.warn(`Failed to play music: ${currentTrack.src}, Error: ${err}`);
     });
 
     currentTrack.onended = () => {
@@ -196,7 +196,7 @@ function drawNextPiece() {
 function drawScore() {
     ctx.fillStyle = 'white';
     ctx.font = '20px Arial';
-    ctx.fillText(Skor: ${score}, 10, 30);
+    ctx.fillText(`Skor: ${score}`, 10, 30);
 }
 
 function drawGameOver() {
