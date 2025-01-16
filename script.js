@@ -8,7 +8,9 @@ const COLS = 12;
 const BLOCK_SIZE = 40;
 
 let backgroundIndex = 0;
-const backgroundImages = Array.from({ length: 28 }, (_, i) => `assets/images/dusman${i + 1}.png`));
+const backgroundImages = Array.from({ length: 28 }, function(_, i) {
+    return `assets/images/dusman${i + 1}.png`;
+});
 
 function changeBackground() {
     const img = new Image();
