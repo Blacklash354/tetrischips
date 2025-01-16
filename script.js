@@ -8,7 +8,9 @@ const COLS = 12;
 const BLOCK_SIZE = 40;
 
 let backgroundIndex = 0;
-const backgroundImages = Array.from({ length: 28 }, (_, i) => `assets/images/dusman${i + 1}.png`);
+const backgroundImages = Array.from({ length: 28 }, function(_, i) {
+    return assets/images/dusman${i + 1}.png;
+});
 
 function changeBackground() {
     const img = new Image();
@@ -24,8 +26,8 @@ function changeBackground() {
 
 const pieceImages = Array.from({ length: 15 }, (_, i) => {
     const img = new Image();
-    img.src = `assets/images/dusman${i + 1}.png`;
-    img.onerror = () => console.error(`Failed to load image: dusman${i + 1}.png`);
+    img.src = assets/images/dusman${i + 1}.png;
+    img.onerror = () => console.error(Failed to load image: dusman${i + 1}.png);
     return img;
 });
 
@@ -40,6 +42,7 @@ let currentPiece, nextPiece;
 let currentX = 4, currentY = 0;
 let gameOver = false;
 let score = 0;
+let isMovingDown = false;
 
 const bgMusicTracks = [
     new Audio('assets/sounds/background1.mp3'),
@@ -52,8 +55,10 @@ function playBackgroundMusic() {
     if (bgMusicTracks.length === 0) return;
     const currentTrack = bgMusicTracks[currentMusicIndex];
     currentTrack.loop = false;
-    currentTrack.play().catch(err => {
-        console.warn(`Failed to play music: ${currentTrack.src}, Error: ${err}`);
+    currentTrack.play().then(() => {
+        console.log(Playing background music: ${currentTrack.src});
+    }).catch(err => {
+        console.warn(Failed to play music: ${currentTrack.src}, Error: ${err});
     });
 
     currentTrack.onended = () => {
@@ -143,26 +148,25 @@ function clearRows() {
             board.unshift(Array(COLS).fill(0));
             score += 100;
             playRandomSound();
-            drawStaticText(); // Statik textleri güncelle
         }
     }
 }
 
-function drawStaticText() {
-    ctx.clearRect(0, 0, canvas.width, 50); // Sadece üst kısmı temizle
-    ctx.fillStyle = 'white';
-    ctx.font = '20px Arial';
-    ctx.fillText(`Skor: ${score}`, 10, 30);
-    ctx.font = '16px Arial';
-    ctx.fillText('Gelen Patlak Blok:', 350, 30);
+function drawBackground() {
+    const img = new Image();
+    img.src = backgroundImages[backgroundIndex];
+    if (img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    }
 }
 
 function drawBoard() {
-    ctx.clearRect(0, 50, canvas.width, canvas.height); // Statik metinler hariç temizle
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBackground();
     board.forEach((row, y) =>
         row.forEach((value, x) => {
             if (value instanceof HTMLImageElement) {
-                ctx.drawImage(value, x * BLOCK_SIZE, y * BLOCK_SIZE + 50, BLOCK_SIZE, BLOCK_SIZE);
+                ctx.drawImage(value, x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
             }
         })
     );
@@ -172,10 +176,29 @@ function drawPiece() {
     currentPiece.shape.forEach((row, dy) =>
         row.forEach((value, dx) => {
             if (value) {
-                ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE + 50, BLOCK_SIZE, BLOCK_SIZE);
+                ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
             }
         })
     );
+}
+
+function drawNextPiece() {
+    ctx.fillStyle = 'white';
+    ctx.font = '16px Arial';
+    ctx.fillText('Gelen Patlak Blok:', 350, 30);
+    nextPiece.shape.forEach((row, dy) =>
+        row.forEach((value, dx) => {
+            if (value) {
+                ctx.drawImage(nextPiece.image, 350 + dx * BLOCK_SIZE / 2, 50 + dy * BLOCK_SIZE / 2, BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+            }
+        })
+    );
+}
+
+function drawScore() {
+    ctx.fillStyle = 'white';
+    ctx.font = '20px Arial';
+    ctx.fillText(Skor: ${score}, 10, 30);
 }
 
 function drawGameOver() {
@@ -192,6 +215,8 @@ function gameLoop() {
     moveDown();
     drawBoard();
     drawPiece();
+    drawNextPiece();
+    drawScore();
     setTimeout(gameLoop, 500);
 }
 
@@ -210,7 +235,6 @@ startButton.addEventListener('click', () => {
     newPiece();
     playBackgroundMusic();
     startButton.style.display = 'none';
-    drawStaticText(); // Başlangıçta statik metinleri çiz
     changeBackground();
     gameLoop();
 });
