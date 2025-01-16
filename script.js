@@ -8,9 +8,7 @@ const COLS = 12;
 const BLOCK_SIZE = 40;
 
 let backgroundIndex = 0;
-const backgroundImages = Array.from({ length: 28 }, function(_, i) {
-    return `assets/images/dusman${i + 1}.png`;
-});
+const backgroundImages = Array.from({ length: 28 }, (_, i) => `assets/images/dusman${i + 1}.png`);
 
 function changeBackground() {
     const img = new Image();
@@ -42,22 +40,36 @@ let currentPiece, nextPiece;
 let currentX = 4, currentY = 0;
 let gameOver = false;
 let score = 0;
-let isMovingDown = false;
 
-const bgMusicTracks = [
-    new Audio('assets/sounds/background1.mp3'),
-    new Audio('assets/sounds/background2.mp3'),
-    new Audio('assets/sounds/background3.mp3')
-];
-let currentMusicIndex = 0;
+// Sabit metin çizme fonksiyonu
+function drawStaticText() {
+    ctx.fillStyle = 'white';
+    ctx.font = '20px Arial';
+    ctx.fillText(`Skor: ${score}`, 10, 30);
+    ctx.font = '16px Arial';
+    ctx.fillText('Gelen Patlak Blok:', 350, 30);
+}
+
+function drawNextPieceStatic() {
+    nextPiece.shape.forEach((row, dy) =>
+        row.forEach((value, dx) => {
+            if (value) {
+                ctx.drawImage(nextPiece.image, 350 + dx * BLOCK_SIZE / 2, 50 + dy * BLOCK_SIZE / 2, BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+            }
+        })
+    );
+}
+
+// Oyun metinlerini bir kereye mahsus çiz
+function initializeStaticElements() {
+    drawStaticText();
+}
 
 function playBackgroundMusic() {
     if (bgMusicTracks.length === 0) return;
     const currentTrack = bgMusicTracks[currentMusicIndex];
     currentTrack.loop = false;
-    currentTrack.play().then(() => {
-        console.log(`Playing background music: ${currentTrack.src}`);
-    }).catch(err => {
+    currentTrack.play().catch(err => {
         console.warn(`Failed to play music: ${currentTrack.src}, Error: ${err}`);
     });
 
@@ -130,39 +142,18 @@ function mergePiece() {
     );
 }
 
-const soundEffects = [
-    new Audio('assets/sounds/carpma1.mp3'),
-    new Audio('assets/sounds/carpma2.mp3'),
-    new Audio('assets/sounds/carpma3.mp3')
-];
-
-function playRandomSound() {
-    const randomIndex = Math.floor(Math.random() * soundEffects.length);
-    soundEffects[randomIndex].play();
-}
-
 function clearRows() {
     for (let y = ROWS - 1; y >= 0; y--) {
         if (board[y].every(cell => cell)) {
             board.splice(y, 1);
             board.unshift(Array(COLS).fill(0));
             score += 100;
-            playRandomSound();
         }
-    }
-}
-
-function drawBackground() {
-    const img = new Image();
-    img.src = backgroundImages[backgroundIndex];
-    if (img.complete && img.naturalWidth > 0) {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
 }
 
 function drawBoard() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBackground();
     board.forEach((row, y) =>
         row.forEach((value, x) => {
             if (value instanceof HTMLImageElement) {
@@ -182,41 +173,13 @@ function drawPiece() {
     );
 }
 
-function drawNextPiece() {
-    ctx.fillStyle = 'white';
-    ctx.font = '16px Arial';
-    ctx.fillText('Gelen Patlak Blok:', 350, 30);
-    nextPiece.shape.forEach((row, dy) =>
-        row.forEach((value, dx) => {
-            if (value) {
-                ctx.drawImage(nextPiece.image, 350 + dx * BLOCK_SIZE / 2, 50 + dy * BLOCK_SIZE / 2, BLOCK_SIZE / 2, BLOCK_SIZE / 2);
-            }
-        })
-    );
-}
-
-function drawScore() {
-    ctx.fillStyle = 'white';
-    ctx.font = '20px Arial';
-    ctx.fillText(`Skor: ${score}`, 10, 30);
-}
-
-function drawGameOver() {
-    ctx.fillStyle = 'red';
-    ctx.font = '40px Arial';
-    ctx.fillText('Oyun Bitti', 120, canvas.height / 2);
-}
-
 function gameLoop() {
     if (gameOver) {
-        drawGameOver();
         return;
     }
     moveDown();
     drawBoard();
     drawPiece();
-    drawNextPiece();
-    drawScore();
     setTimeout(gameLoop, 500);
 }
 
@@ -235,6 +198,7 @@ startButton.addEventListener('click', () => {
     newPiece();
     playBackgroundMusic();
     startButton.style.display = 'none';
+    initializeStaticElements(); // Statik metinleri ve görüntüleri çiz
     changeBackground();
     gameLoop();
 });
