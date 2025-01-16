@@ -66,9 +66,15 @@ const bgMusicTracks = [
 let currentMusicIndex = 0;
 
 function playBackgroundMusic() {
+    if (bgMusicTracks.length === 0) return; // Eğer müzik yoksa çık
     const currentTrack = bgMusicTracks[currentMusicIndex];
     currentTrack.loop = false; // Geçiş için loop devre dışı
-    currentTrack.play();
+    currentTrack.play().then(() => {
+        console.log(`Playing background music: ${currentTrack.src}`);
+    }).catch((err) => {
+        console.warn(`Failed to play music: ${currentTrack.src}, Error: ${err}`);
+    });
+
     currentTrack.onended = () => {
         currentMusicIndex = (currentMusicIndex + 1) % bgMusicTracks.length; // Sıradaki müziğe geç
         playBackgroundMusic(); // Sonraki müziği çal
