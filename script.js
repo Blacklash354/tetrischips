@@ -58,8 +58,37 @@ let gameOver = false;
 let score = 0;
 
 // Arka plan müziği
-const bgMusic = new Audio('assets/sounds/background.mp3');
-bgMusic.loop = true;
+const bgMusicTracks = [
+    new Audio('assets/sounds/background1.mp3'),
+    new Audio('assets/sounds/background2.mp3'),
+    new Audio('assets/sounds/background3.mp3')
+];
+let currentMusicIndex = 0;
+
+function playBackgroundMusic() {
+    const currentTrack = bgMusicTracks[currentMusicIndex];
+    currentTrack.loop = false; // Geçiş için loop devre dışı
+    currentTrack.play();
+    currentTrack.onended = () => {
+        currentMusicIndex = (currentMusicIndex + 1) % bgMusicTracks.length; // Sıradaki müziğe geç
+        playBackgroundMusic(); // Sonraki müziği çal
+    };
+}
+
+// Akıcı hareket için hareket zamanlayıcısını requestAnimationFrame ile değiştir
+let lastTime = 0;
+function smoothGameLoop(time) {
+    const delta = time - lastTime;
+    if (delta > 500 - Math.min(400, score)) {
+        moveDown(); // Blok hareketini çağır
+        drawBoard(); // Tahtayı çiz
+        drawPiece(); // Mevcut parçayı çiz
+        drawNextPiece(); // Sonraki parçayı çiz
+        drawScore(); // Skoru güncelle
+        lastTime = time;
+    }
+    if (!gameOver) requestAnimationFrame(smoothGameLoop); // Akıcı döngü
+}
 
 function preloadImages(images, callback) {
     let loadedCount = 0;
@@ -272,8 +301,8 @@ startButton.addEventListener('click', () => {
 
     console.log("Starting the game...");
     newPiece(); // İlk parçayı oluştur
-    bgMusic.play(); // Arka plan müziğini başlat
+    playBackgroundMusic(); // Arka plan müziğini başlat
     startButton.style.display = 'none'; // Başla düğmesini gizle
     changeBackground(); // Arka plan değişimini başlat
-    gameLoop(); // Oyun döngüsünü başlat
+    requestAnimationFrame(smoothGameLoop); // Akıcı oyun döngüsü başlat
 });
