@@ -7,13 +7,6 @@ const ROWS = 16;
 const COLS = 12;
 const BLOCK_SIZE = 40;
 
-// Arka plan katmanı ve yazılar için ayrı canvas
-const textCanvas = document.createElement('canvas');
-const textCtx = textCanvas.getContext('2d');
-textCanvas.width = canvas.width;
-textCanvas.height = canvas.height;
-document.body.appendChild(textCanvas); // Text canvas ekranda görünür
-
 let backgroundIndex = 0;
 const backgroundImages = Array.from({ length: 28 }, (_, i) => `assets/images/dusman${i + 1}.png`);
 
@@ -155,21 +148,21 @@ function clearRows() {
 }
 
 function drawTextLayer() {
-    textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-    textCtx.fillStyle = 'white';
-    textCtx.font = '20px Arial';
-    textCtx.fillText(`Skor: ${score}`, 10, 30);
-    textCtx.font = '16px Arial';
-    textCtx.fillText('Gelen Patlak Blok:', 350, 30);
+    ctx.fillStyle = 'white';
+    ctx.font = '20px Arial';
+    ctx.fillText(`Skor: ${score}`, 10, 30);
+    ctx.font = '16px Arial';
+    ctx.fillText('Gelen Patlak Blok:', 350, 30);
     if (gameOver) {
-        textCtx.fillStyle = 'red';
-        textCtx.font = '40px Arial';
-        textCtx.fillText('Oyun Bitti', 120, canvas.height / 2);
+        ctx.fillStyle = 'red';
+        ctx.font = '40px Arial';
+        ctx.fillText('Oyun Bitti', 120, canvas.height / 2);
     }
 }
 
 function drawBoard() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBackground();
     board.forEach((row, y) =>
         row.forEach((value, x) => {
             if (value instanceof HTMLImageElement) {
@@ -215,7 +208,6 @@ startButton.addEventListener('click', () => {
 
     newPiece();
     playBackgroundMusic();
-    drawTextLayer();
     changeBackground();
     gameLoop();
 });
