@@ -10,32 +10,23 @@ const BLOCK_SIZE = 40;
 let backgroundIndex = 0; // Arka plan için başlangıç indeksi
 const backgroundImages = Array.from({ length: 28 }, (_, i) => `assets/images/dusman${i + 1}.png`);
 
-
-
 function changeBackground() {
     const img = new Image();
     img.src = backgroundImages[backgroundIndex];
     img.onload = () => {
-        // Sadece arka plan katmanını güncelle
         ctx.globalCompositeOperation = 'destination-over';
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = 'source-over'; // Varsayılan moda geri dön
-        backgroundIndex = (backgroundIndex + 1) % backgroundImages.length; // Sıradaki resme geç
+        ctx.globalCompositeOperation = 'source-over';
+        backgroundIndex = (backgroundIndex + 1) % backgroundImages.length;
     };
     img.onerror = () => {
         console.warn(`Failed to load background image: ${backgroundImages[backgroundIndex]}`);
-        backgroundIndex = (backgroundIndex + 1) % backgroundImages.length; // Hatalıysa diğerine geç
+        backgroundIndex = (backgroundIndex + 1) % backgroundImages.length;
     };
 
-    setTimeout(changeBackground, 10000); // 1 saniyede bir değiştir
+    setTimeout(changeBackground, 10000);
 }
-// Arka plan resmi
-const background = new Image();
-background.src = 'assets/images/background.png';
-background.onload = () => console.log('Background loaded successfully.');
-background.onerror = () => console.error('Failed to load background image.');
 
-// Parça resimleri
 const pieceImages = Array.from({ length: 15 }, (_, i) => {
     const img = new Image();
     img.src = `assets/images/dusman${i + 1}.png`;
@@ -43,21 +34,18 @@ const pieceImages = Array.from({ length: 15 }, (_, i) => {
     return img;
 });
 
-// Tetris şekilleri
 const SHAPES = [
     [[1, 1, 1, 1]], [[1, 1, 1], [0, 1, 0]], [[1, 1, 1], [1, 0, 0]],
     [[1, 1, 1], [0, 0, 1]], [[1, 1], [1, 1]], [[0, 1, 1], [1, 1, 0]],
     [[1, 1, 0], [0, 1, 1]]
 ];
 
-// Başlangıç durumları
 let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 let currentPiece, nextPiece;
 let currentX = 4, currentY = 0;
 let gameOver = false;
 let score = 0;
 
-// Arka plan müziği
 const bgMusicTracks = [
     new Audio('assets/sounds/background1.mp3'),
     new Audio('assets/sounds/background2.mp3'),
@@ -66,9 +54,9 @@ const bgMusicTracks = [
 let currentMusicIndex = 0;
 
 function playBackgroundMusic() {
-    if (bgMusicTracks.length === 0) return; // Eğer müzik yoksa çık
+    if (bgMusicTracks.length === 0) return;
     const currentTrack = bgMusicTracks[currentMusicIndex];
-    currentTrack.loop = false; // Geçiş için loop devre dışı
+    currentTrack.loop = false;
     currentTrack.play().then(() => {
         console.log(`Playing background music: ${currentTrack.src}`);
     }).catch((err) => {
@@ -76,49 +64,27 @@ function playBackgroundMusic() {
     });
 
     currentTrack.onended = () => {
-        currentMusicIndex = (currentMusicIndex + 1) % bgMusicTracks.length; // Sıradaki müziğe geç
-        playBackgroundMusic(); // Sonraki müziği çal
+        currentMusicIndex = (currentMusicIndex + 1) % bgMusicTracks.length;
+        playBackgroundMusic();
     };
 }
 
-// Akıcı hareket için hareket zamanlayıcısını requestAnimationFrame ile değiştir
 let lastTime = 0;
 function smoothGameLoop(time) {
     const delta = time - lastTime;
-    if (delta > 500 - Math.min(400, score)) {
-        moveDown(); // Blok hareketini çağır
-        drawBoard(); // Tahtayı çiz
-        drawPiece(); // Mevcut parçayı çiz
-        drawNextPiece(); // Sonraki parçayı çiz
-        drawScore(); // Skoru güncelle
+    if (delta > 700) { // Tetris hızına uygun
+        moveDown();
+        drawBoard();
+        drawPiece();
+        drawNextPiece();
+        drawScore();
         lastTime = time;
     }
-    if (!gameOver) requestAnimationFrame(smoothGameLoop); // Akıcı döngü
-}
-
-function preloadImages(images, callback) {
-    let loadedCount = 0;
-    images.forEach((img) => {
-        img.onload = () => {
-            loadedCount++;
-            if (loadedCount === images.length) {
-                callback();
-            }
-        };
-        img.onerror = () => {
-            console.warn(`Failed to load image: ${img.src}`);
-            loadedCount++;
-            if (loadedCount === images.length) {
-                callback();
-            }
-        };
-    });
+    if (!gameOver) requestAnimationFrame(smoothGameLoop);
 }
 
 function newPiece() {
-    if (!nextPiece) {
-        nextPiece = generatePiece();
-    }
+    if (!nextPiece) nextPiece = generatePiece();
     currentPiece = nextPiece;
     nextPiece = generatePiece();
     currentX = Math.floor((COLS - currentPiece.shape[0].length) / 2);
@@ -135,13 +101,13 @@ function generatePiece() {
 function isValidMove(offsetX, offsetY, rotatedPiece = currentPiece.shape) {
     return rotatedPiece.every((row, dy) =>
         row.every((value, dx) => {
-            if (!value) return true; // Parça yoksa devam et
+            if (!value) return true;
             const newX = currentX + dx + offsetX;
             const newY = currentY + dy + offsetY;
             return (
-                newX >= 0 && newX < COLS && // Yan sınır kontrolü
-                newY >= 0 && newY < ROWS && // Alt sınır kontrolü
-                !board[newY]?.[newX] // Mevcut tahtadaki doluluk kontrolü
+                newX >= 0 && newX < COLS &&
+                newY >= 0 && newY < ROWS &&
+                !board[newY]?.[newX]
             );
         })
     );
@@ -155,7 +121,7 @@ function moveDown() {
     if (!isValidMove(0, 1)) {
         mergePiece();
         clearRows();
-        newPiece();
+        if (!gameOver) newPiece();
     } else {
         currentY++;
     }
@@ -182,20 +148,18 @@ const soundEffects = [
     new Audio('assets/sounds/carpma3.mp3')
 ];
 
-// Rastgele ses çal
 function playRandomSound() {
     const randomIndex = Math.floor(Math.random() * soundEffects.length);
     soundEffects[randomIndex].play();
 }
 
-// Skor için satır temizleme fonksiyonu güncelleniyor
 function clearRows() {
     for (let y = ROWS - 1; y >= 0; y--) {
         if (board[y].every(cell => cell)) {
             board.splice(y, 1);
             board.unshift(Array(COLS).fill(0));
-            score += 100; // Skor artır
-            playRandomSound(); // Rastgele bir ses çal
+            score += 100;
+            playRandomSound();
         }
     }
 }
@@ -208,10 +172,9 @@ function drawBackground() {
     }
 }
 
-// Oyun Döngüsü İçine Ekleniyor
 function drawBoard() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBackground(); // Arka planı çiz
+    drawBackground();
     board.forEach((row, y) =>
         row.forEach((value, x) => {
             if (value instanceof HTMLImageElement) {
@@ -228,21 +191,7 @@ function drawNextPiece() {
     nextPiece.shape.forEach((row, dy) =>
         row.forEach((value, dx) => {
             if (value) {
-                try {
-                    if (nextPiece.image.complete && nextPiece.image.naturalWidth > 0) {
-                        ctx.drawImage(
-                            nextPiece.image,
-                            350 + dx * BLOCK_SIZE / 2,
-                            50 + dy * BLOCK_SIZE / 2,
-                            BLOCK_SIZE / 2,
-                            BLOCK_SIZE / 2
-                        );
-                    } else {
-                        console.warn('Next piece image not loaded or broken.');
-                    }
-                } catch (error) {
-                    console.error('Failed to draw next piece image:', error);
-                }
+                ctx.drawImage(nextPiece.image, 350 + dx * BLOCK_SIZE / 2, 50 + dy * BLOCK_SIZE / 2, BLOCK_SIZE / 2, BLOCK_SIZE / 2);
             }
         })
     );
@@ -252,21 +201,7 @@ function drawPiece() {
     currentPiece.shape.forEach((row, dy) =>
         row.forEach((value, dx) => {
             if (value) {
-                try {
-                    if (currentPiece.image.complete && currentPiece.image.naturalWidth > 0) {
-                        ctx.drawImage(
-                            currentPiece.image,
-                            (currentX + dx) * BLOCK_SIZE,
-                            (currentY + dy) * BLOCK_SIZE,
-                            BLOCK_SIZE,
-                            BLOCK_SIZE
-                        );
-                    } else {
-                        console.warn('Current piece image not loaded or broken.');
-                    }
-                } catch (error) {
-                    console.error('Failed to draw current piece image:', error);
-                }
+                ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
             }
         })
     );
@@ -276,21 +211,6 @@ function drawScore() {
     ctx.fillStyle = 'white';
     ctx.font = '20px Arial';
     ctx.fillText(`Skor: ${score}`, 10, 30);
-}
-
-function gameLoop() {
-    if (gameOver) {
-        ctx.fillStyle = 'white';
-        ctx.font = '30px Arial';
-        ctx.fillText('Oyun Bitti', 120, 400);
-        return;
-    }
-    moveDown();
-    drawBoard();
-    drawPiece();
-    drawNextPiece();
-    drawScore();
-    setTimeout(gameLoop, 500 - Math.min(400, score));
 }
 
 document.addEventListener('keydown', (e) => {
@@ -304,11 +224,9 @@ startButton.addEventListener('click', () => {
     gameOver = false;
     board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
     score = 0;
-
-    console.log("Starting the game...");
-    newPiece(); // İlk parçayı oluştur
-    playBackgroundMusic(); // Arka plan müziğini başlat
-    startButton.style.display = 'none'; // Başla düğmesini gizle
-    changeBackground(); // Arka plan değişimini başlat
-    requestAnimationFrame(smoothGameLoop); // Akıcı oyun döngüsü başlat
+    newPiece();
+    playBackgroundMusic();
+    startButton.style.display = 'none';
+    changeBackground();
+    requestAnimationFrame(smoothGameLoop);
 });
