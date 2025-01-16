@@ -7,6 +7,13 @@ const ROWS = 16;
 const COLS = 12;
 const BLOCK_SIZE = 40;
 
+// Arka plan katmanı ve yazılar için ayrı canvas
+const textCanvas = document.createElement('canvas');
+const textCtx = textCanvas.getContext('2d');
+textCanvas.width = canvas.width;
+textCanvas.height = canvas.height;
+document.body.appendChild(textCanvas); // Text canvas ekranda görünür
+
 let backgroundIndex = 0;
 const backgroundImages = Array.from({ length: 28 }, (_, i) => `assets/images/dusman${i + 1}.png`);
 
@@ -40,7 +47,6 @@ let currentPiece, nextPiece;
 let currentX = 4, currentY = 0;
 let gameOver = false;
 let score = 0;
-let isMovingDown = false;
 
 const bgMusicTracks = [
     new Audio('assets/sounds/background1.mp3'),
@@ -53,9 +59,7 @@ function playBackgroundMusic() {
     if (bgMusicTracks.length === 0) return;
     const currentTrack = bgMusicTracks[currentMusicIndex];
     currentTrack.loop = false;
-    currentTrack.play().then(() => {
-        console.log(`Playing background music: ${currentTrack.src}`);
-    }).catch(err => {
+    currentTrack.play().catch(err => {
         console.warn(`Failed to play music: ${currentTrack.src}, Error: ${err}`);
     });
 
@@ -150,17 +154,22 @@ function clearRows() {
     }
 }
 
-function drawBackground() {
-    const img = new Image();
-    img.src = backgroundImages[backgroundIndex];
-    if (img.complete && img.naturalWidth > 0) {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+function drawTextLayer() {
+    textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+    textCtx.fillStyle = 'white';
+    textCtx.font = '20px Arial';
+    textCtx.fillText(`Skor: ${score}`, 10, 30);
+    textCtx.font = '16px Arial';
+    textCtx.fillText('Gelen Patlak Blok:', 350, 30);
+    if (gameOver) {
+        textCtx.fillStyle = 'red';
+        textCtx.font = '40px Arial';
+        textCtx.fillText('Oyun Bitti', 120, canvas.height / 2);
     }
 }
 
 function drawBoard() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBackground();
     board.forEach((row, y) =>
         row.forEach((value, x) => {
             if (value instanceof HTMLImageElement) {
@@ -180,41 +189,15 @@ function drawPiece() {
     );
 }
 
-function drawNextPiece() {
-    ctx.fillStyle = 'white';
-    ctx.font = '16px Arial';
-    ctx.fillText('Gelen Patlak Blok:', 350, 30);
-    nextPiece.shape.forEach((row, dy) =>
-        row.forEach((value, dx) => {
-            if (value) {
-                ctx.drawImage(nextPiece.image, 350 + dx * BLOCK_SIZE / 2, 50 + dy * BLOCK_SIZE / 2, BLOCK_SIZE / 2, BLOCK_SIZE / 2);
-            }
-        })
-    );
-}
-
-function drawScore() {
-    ctx.fillStyle = 'white';
-    ctx.font = '20px Arial';
-    ctx.fillText(`Skor: ${score}`, 10, 30);
-}
-
-function drawGameOver() {
-    ctx.fillStyle = 'red';
-    ctx.font = '40px Arial';
-    ctx.fillText('Oyun Bitti', 120, canvas.height / 2);
-}
-
 function gameLoop() {
     if (gameOver) {
-        drawGameOver();
+        drawTextLayer();
         return;
     }
     moveDown();
     drawBoard();
     drawPiece();
-    drawNextPiece();
-    drawScore();
+    drawTextLayer();
     setTimeout(gameLoop, 500);
 }
 
@@ -232,7 +215,7 @@ startButton.addEventListener('click', () => {
 
     newPiece();
     playBackgroundMusic();
-    startButton.style.display = 'none';
+    drawTextLayer();
     changeBackground();
     gameLoop();
 });
