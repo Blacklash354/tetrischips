@@ -7,7 +7,7 @@ const ROWS = 16;
 const COLS = 12;
 const BLOCK_SIZE = 40;
 
-let backgroundIndex = 0; // Arka plan için başlangıç indeksi
+let backgroundIndex = 0;
 const backgroundImages = Array.from({ length: 28 }, (_, i) => `assets/images/dusman${i + 1}.png`);
 
 function changeBackground() {
@@ -19,11 +19,6 @@ function changeBackground() {
         ctx.globalCompositeOperation = 'source-over';
         backgroundIndex = (backgroundIndex + 1) % backgroundImages.length;
     };
-    img.onerror = () => {
-        console.warn(`Failed to load background image: ${backgroundImages[backgroundIndex]}`);
-        backgroundIndex = (backgroundIndex + 1) % backgroundImages.length;
-    };
-
     setTimeout(changeBackground, 10000);
 }
 
@@ -45,6 +40,7 @@ let currentPiece, nextPiece;
 let currentX = 4, currentY = 0;
 let gameOver = false;
 let score = 0;
+let isMovingDown = false;
 
 const bgMusicTracks = [
     new Audio('assets/sounds/background1.mp3'),
@@ -59,7 +55,7 @@ function playBackgroundMusic() {
     currentTrack.loop = false;
     currentTrack.play().then(() => {
         console.log(`Playing background music: ${currentTrack.src}`);
-    }).catch((err) => {
+    }).catch(err => {
         console.warn(`Failed to play music: ${currentTrack.src}, Error: ${err}`);
     });
 
@@ -67,20 +63,6 @@ function playBackgroundMusic() {
         currentMusicIndex = (currentMusicIndex + 1) % bgMusicTracks.length;
         playBackgroundMusic();
     };
-}
-
-let lastTime = 0;
-function smoothGameLoop(time) {
-    const delta = time - lastTime;
-    if (delta > 700) { // Tetris hızına uygun
-        moveDown();
-        drawBoard();
-        drawPiece();
-        drawNextPiece();
-        drawScore();
-        lastTime = time;
-    }
-    if (!gameOver) requestAnimationFrame(smoothGameLoop);
 }
 
 function newPiece() {
@@ -115,6 +97,8 @@ function isValidMove(offsetX, offsetY, rotatedPiece = currentPiece.shape) {
 
 function moveSideways(direction) {
     if (isValidMove(direction, 0)) currentX += direction;
+    drawBoard();
+    drawPiece();
 }
 
 function moveDown() {
@@ -132,6 +116,8 @@ function rotatePiece() {
         currentPiece.shape.map(row => row[i]).reverse()
     );
     if (isValidMove(0, 0, rotated)) currentPiece.shape = rotated;
+    drawBoard();
+    drawPiece();
 }
 
 function mergePiece() {
@@ -184,6 +170,16 @@ function drawBoard() {
     );
 }
 
+function drawPiece() {
+    currentPiece.shape.forEach((row, dy) =>
+        row.forEach((value, dx) => {
+            if (value) {
+                ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            }
+        })
+    );
+}
+
 function drawNextPiece() {
     ctx.fillStyle = 'white';
     ctx.font = '16px Arial';
@@ -197,20 +193,29 @@ function drawNextPiece() {
     );
 }
 
-function drawPiece() {
-    currentPiece.shape.forEach((row, dy) =>
-        row.forEach((value, dx) => {
-            if (value) {
-                ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-            }
-        })
-    );
-}
-
 function drawScore() {
     ctx.fillStyle = 'white';
     ctx.font = '20px Arial';
     ctx.fillText(`Skor: ${score}`, 10, 30);
+}
+
+function drawGameOver() {
+    ctx.fillStyle = 'red';
+    ctx.font = '40px Arial';
+    ctx.fillText('Oyun Bitti', 120, canvas.height / 2);
+}
+
+function gameLoop() {
+    if (gameOver) {
+        drawGameOver();
+        return;
+    }
+    moveDown();
+    drawBoard();
+    drawPiece();
+    drawNextPiece();
+    drawScore();
+    setTimeout(gameLoop, 500);
 }
 
 document.addEventListener('keydown', (e) => {
@@ -224,9 +229,10 @@ startButton.addEventListener('click', () => {
     gameOver = false;
     board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
     score = 0;
+
     newPiece();
     playBackgroundMusic();
     startButton.style.display = 'none';
     changeBackground();
-    requestAnimationFrame(smoothGameLoop);
+    gameLoop();
 });
