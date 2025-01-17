@@ -24,7 +24,7 @@ function changeBackground() {
     setTimeout(changeBackground, 10000);
 }
 
-const pieceImages = Array.from({ length: 15 }, (_, i) => {
+const pieceImages = Array.from({ length: 33 }, (_, i) => {
     const img = new Image();
     img.src = `assets/images/dusman${i + 1}.png`;
     img.onerror = () => console.error(`Failed to load image: dusman${i + 1}.png`);
