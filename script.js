@@ -8,7 +8,7 @@ const COLS = 12;
 const BLOCK_SIZE = 40;
 
 let backgroundIndex = 0;
-const backgroundImages = Array.from({ length: 28 }, (_, i) => {
+const backgroundImages = Array.from({ length: 33 }, (_, i) => {
     return `assets/images/dusman${i + 1}.png`;
 });
 
