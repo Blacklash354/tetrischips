@@ -198,13 +198,13 @@ function drawNextPiece() {
 function drawScore() {
     ctx.fillStyle = 'white';
     ctx.font = '20px Arial';
-    ctx.fillText(`Skor: ${score}`, 10, 30);
+    ctx.fillText(`Patlak Skor: ${score}`, 10, 30);
 }
 
 function drawGameOver() {
     ctx.fillStyle = 'red';
     ctx.font = '40px Arial';
-    ctx.fillText('Oyun Bitti', 120, canvas.height / 2);
+    ctx.fillText('Patlak Oyunu Kaybettin F5 BAS', 120, canvas.height / 2);
 }
 
 function gameLoop() {
