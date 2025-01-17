@@ -204,7 +204,7 @@ function drawScore() {
 function drawGameOver() {
     ctx.fillStyle = 'red';
     ctx.font = '40px Arial';
-    ctx.fillText('Patlak Oyunu Kaybettin F5 BAS', 120, canvas.height / 2);
+    ctx.fillText('Patlak Oyunu\nKaybettin F5 BAS', 120, canvas.height / 2);
 }
 
 function gameLoop() {
