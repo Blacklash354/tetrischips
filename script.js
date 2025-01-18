@@ -12,6 +12,18 @@ const backgroundImages = Array.from({ length: 33 }, (_, i) => {
     return `assets/images/dusman${i + 1}.png`;
 });
 
+function generatePiece() {
+    const shapeIndex = Math.floor(Math.random() * SHAPES.length);
+    let imageIndex;
+
+    // Geçerli bir görsel seçene kadar dene
+    do {
+        imageIndex = Math.floor(Math.random() * pieceImages.length);
+    } while (!pieceImages[imageIndex].complete || pieceImages[imageIndex].naturalWidth === 0);
+
+    return { shape: SHAPES[shapeIndex], image: pieceImages[imageIndex] };
+}
+
 function changeBackground() {
     const img = new Image();
     img.src = backgroundImages[backgroundIndex];
@@ -125,10 +137,15 @@ function rotatePiece() {
 function mergePiece() {
     currentPiece.shape.forEach((row, dy) =>
         row.forEach((value, dx) => {
-            if (value) board[currentY + dy][currentX + dx] = currentPiece.image;
+            if (value && currentPiece.image.complete && currentPiece.image.naturalWidth > 0) {
+                board[currentY + dy][currentX + dx] = currentPiece.image;
+            } else if (!currentPiece.image.complete || currentPiece.image.naturalWidth === 0) {
+                console.warn('Bozuk bir görsel tahtaya eklenmiyor.');
+            }
         })
     );
 }
+
 
 const soundEffects = [
     new Audio('assets/sounds/carpma1.mp3'),
@@ -166,25 +183,26 @@ function drawBoard() {
     board.forEach((row, y) =>
         row.forEach((value, x) => {
             if (value instanceof HTMLImageElement) {
-                try {
+                if (value.complete && value.naturalWidth > 0) {
                     ctx.drawImage(value, x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-                } catch (error) {
-                    console.warn("Hatalı görüntü atlandı:", error);
-                    // Hatalı blok atlanır.
+                } else {
+                    console.warn('Tahtada bozuk bir görsel bulundu, çizilmiyor.');
                 }
             }
         })
     );
 }
+
+
 function drawPiece() {
     currentPiece.shape.forEach((row, dy) =>
         row.forEach((value, dx) => {
             if (value) {
-                try {
-                    ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-                } catch (error) {
-                    console.warn("Hata oluştu, bozuk parça atlandı:", error);
-                    // Parça çizimi atlanır, ancak oyun devam eder.
+                const img = currentPiece.image;
+                if (img.complete && img.naturalWidth > 0) {
+                    ctx.drawImage(img, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                } else {
+                    console.warn('Bozuk bir görsel tespit edildi, çizilmiyor.');
                 }
             }
         })
