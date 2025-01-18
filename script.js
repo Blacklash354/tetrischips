@@ -165,8 +165,13 @@ function drawBoard() {
     drawBackground();
     board.forEach((row, y) =>
         row.forEach((value, x) => {
-            if (value instanceof HTMLImageElement && value.complete && value.naturalWidth > 0) {
-                ctx.drawImage(value, x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            if (value instanceof HTMLImageElement) {
+                try {
+                    ctx.drawImage(value, x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                } catch (error) {
+                    console.warn("Hatalı görüntü atlandı:", error);
+                    // Hatalı blok atlanır.
+                }
             }
         })
     );
@@ -174,8 +179,13 @@ function drawBoard() {
 function drawPiece() {
     currentPiece.shape.forEach((row, dy) =>
         row.forEach((value, dx) => {
-            if (value && currentPiece.image.complete && currentPiece.image.naturalWidth > 0) {
-                ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            if (value) {
+                try {
+                    ctx.drawImage(currentPiece.image, (currentX + dx) * BLOCK_SIZE, (currentY + dy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                } catch (error) {
+                    console.warn("Hata oluştu, bozuk parça atlandı:", error);
+                    // Parça çizimi atlanır, ancak oyun devam eder.
+                }
             }
         })
     );
@@ -187,8 +197,13 @@ function drawNextPiece() {
     ctx.fillText('Gelen Patlak Blok:', 350, 30);
     nextPiece.shape.forEach((row, dy) =>
         row.forEach((value, dx) => {
-            if (value && nextPiece.image.complete && nextPiece.image.naturalWidth > 0) {
-                ctx.drawImage(nextPiece.image, 350 + dx * BLOCK_SIZE / 2, 50 + dy * BLOCK_SIZE / 2, BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+            if (value) {
+                try {
+                    ctx.drawImage(nextPiece.image, 350 + dx * BLOCK_SIZE / 2, 50 + dy * BLOCK_SIZE / 2, BLOCK_SIZE / 2, BLOCK_SIZE / 2);
+                } catch (error) {
+                    console.warn("Hata oluştu, bozuk parça atlandı:", error);
+                    // Hatalı parça çizimi atlanır.
+                }
             }
         })
     );
