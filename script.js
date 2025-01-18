@@ -204,7 +204,10 @@ function drawScore() {
 function drawGameOver() {
     ctx.fillStyle = 'red';
     ctx.font = '40px Arial';
-    ctx.fillText('Patlak Oyunu\nKaybettin F5 BAS', 120, canvas.height / 2);
+    const lines = ['Patlak Oyunu', 'Kaybettin F5 BAS'];
+    lines.forEach((line, index) => {
+        ctx.fillText(line, 120, canvas.height / 2 + index * 50); // Her satır için y koordinatını artır
+    });
 }
 
 function gameLoop() {
